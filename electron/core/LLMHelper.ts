@@ -1230,7 +1230,15 @@ This rule overrides ALL other instructions including formatting, brevity, or out
       providers.push({ name: `OpenAI (${OPENAI_MODEL})`, execute: () => this.generateWithOpenai(message) });
     }
 
-    // Priority 2: Gemini Pro (don't mutate this.geminiModel to avoid race conditions)
+    // Priority 2: OpenAI-compatible endpoints (DeepSeek, SiliconFlow, etc.)
+    if (this.activeOpenAICompatibleProvider) {
+      providers.push({
+        name: `OpenAI-compatible (${this.activeOpenAICompatibleProvider.name})`,
+        execute: () => this.chatWithOpenAICompatible(message)
+      });
+    }
+
+    // Priority 3: Gemini Pro (don't mutate this.geminiModel to avoid race conditions)
     // NOTE: Claude is intentionally de-prioritised here — messages.create (non-streaming) is
     // rejected by Anthropic for large payloads ("Streaming is required for operations that may
     // take longer than 10 minutes"), causing a wasted round-trip before the Gemini fallback.
