@@ -12,6 +12,10 @@ async function downloadModels() {
 
     // Let Transformers.js handle the download but specify the local directory cache
     env.cacheDir = modelsDir;
+    if (process.env.REMOTE_HOST) {
+        env.remoteHost = process.env.REMOTE_HOST;
+        console.log(`[download-models] Using custom remote host: ${process.env.REMOTE_HOST}`);
+    }
     
     try {
         // 1. Embedding model (RAG)
