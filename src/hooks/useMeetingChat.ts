@@ -112,13 +112,20 @@ export function useMeetingChat() {
   }, [chatMessages, systemMessages]);
 
   useEffect(() => {
-    const context = allMessagesForContext
+    const lines = allMessagesForContext
       .filter((m) => m.role !== 'user' || !m.hasScreenshot)
-      .map((m) => `${m.role === 'interviewer' ? 'Interviewer' : m.role === 'user' ? 'User' : 'Assistant'}: ${m.text}`)
-      .slice(-20)
-      .join('\n');
+      .map((m) => `${m.role === 'interviewer' ? 'Interviewer' : m.role === 'user' ? 'User' : 'Assistant'}: ${m.text}`);
+    const recent = lines.slice(-20);
 
-    setConversationContext(context);
+    // Tag the most recent interviewer message as the latest question
+    for (let i = recent.length - 1; i >= 0; i--) {
+      if (recent[i].startsWith('Interviewer:')) {
+        recent[i] = recent[i].replace('Interviewer:', 'Interviewer [LATEST QUESTION]:');
+        break;
+      }
+    }
+
+    setConversationContext(recent.join('\n'));
   }, [allMessagesForContext]);
 
   // Merged messages for UI rendering (chat + system quick-action responses)
